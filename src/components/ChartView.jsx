@@ -46,10 +46,11 @@ const EMPTY_DATA = { datasets: [] };
 
 export default function ChartView({ data }) {
   const chartRef = useRef(null);
+  const hasData = data && data.length > 0;
 
   useEffect(() => {
     const chart = chartRef.current;
-    if (!chart || !data || data.length === 0) return;
+    if (!chart || !hasData) return;
 
     // Update datasets in-place — no destroy/recreate, no flicker
     data.forEach((series, i) => {
@@ -70,15 +71,21 @@ export default function ChartView({ data }) {
     // Remove stale datasets if series count decreased
     chart.data.datasets.splice(data.length);
     chart.update('none');
-  }, [data]);
-
-  if (!data || data.length === 0) {
-    return <div className="chart-placeholder">Loading chart…</div>;
-  }
+  }, [data, hasData]);
 
   return (
     <div style={{ height: 500, position: 'relative' }}>
+      {/* Always keep Line mounted to avoid Chart.js destroy/recreate */}
       <Line ref={chartRef} data={EMPTY_DATA} options={OPTIONS} />
+      {!hasData && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'var(--color-surface)',
+        }}>
+          <span className="chart-placeholder">Loading chart…</span>
+        </div>
+      )}
     </div>
   );
 }

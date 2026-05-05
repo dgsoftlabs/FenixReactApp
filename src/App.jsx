@@ -58,7 +58,10 @@ export default function App() {
   // Poll Tags every 2 s
   useEffect(() => {
     async function poll() {
-      try { setTags(await fetchTags()); setTagsError(null); }
+      try {
+        const data = await fetchTags();
+        if (Object.keys(data).length > 0) { setTags(data); setTagsError(null); }
+      }
       catch (e) { setTagsError(e.message); }
     }
     poll();
@@ -89,7 +92,10 @@ export default function App() {
   // Poll Graph every 2 s
   useEffect(() => {
     async function poll() {
-      try { setGraphData(await fetchGraph()); } catch { /* ignore */ }
+      try {
+        const data = await fetchGraph();
+        if (data.length > 0) setGraphData(data);
+      } catch { /* ignore */ }
     }
     poll();
     const id = setInterval(poll, 2000);
